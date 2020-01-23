@@ -26,10 +26,18 @@
 // Compilation will create CV_kernel.cubin which provides the
 // functions below. The .cubin can then be imported into 
 // Python(PyCUDA) or C/C++ code.	
+//
+//////////////////////////////////////////////////////////////////////////
+//
+// This kernel provides GPU methods to calculate the monolayer and bilayer 
+// DOS, eF, Capacitance, and other related quantities. Dit and surface 
+// potential fluctuations are also included. 
+//
+// Characterization and physical modeling of MOS capacitors in epitaxial 
+// graphene monolayers and bilayers on 6H-SiC
+//
+// AIP Advances 6, 085010 (2016); https://doi.org/10.1063/1.4961361
 // 
-// The kernel provides GPU methods to calculate the monolayer
-// and bilayer DOS, eF, Capacitance, and other related quantities. 
-// Dit and surface potential fluctuations are also included. 
 
 #include <stdio.h>
 #include <curand.h>
@@ -39,6 +47,7 @@
 ///////////////////////
 //	 CONSTANTS		 //
 ///////////////////////
+
 __device__ __constant__ float PI = 3.141592654f; 
 __device__ __constant__ float HB = 6.58211e-16f;
 __device__ __constant__ float KB = 8.617332e-5f;
@@ -51,6 +60,7 @@ __device__ __constant__ float R	= 1.414213562f;
 //////////////////////////////////
 //		ATOMIC OPERATIONS	 	//
 //////////////////////////////////
+
 extern "C" {
 
 	__device__	void addToC(float *r, float* rx, float* a, float n, int INT) {
@@ -131,6 +141,7 @@ extern "C" {
 //////////////////////////////////////////////////
 //	 MONTE CARLO SIMULATION of CAPACITANCE		//
 //////////////////////////////////////////////////
+
 extern "C" {
 
 	__global__ void gen_rand(float* eF, float* eFr, float deF, unsigned long SEED){
@@ -172,6 +183,7 @@ extern "C" {
 ///////////////////////////////////////////
 //			 NEWTONS METHOD				 // 
 ///////////////////////////////////////////
+
 extern "C"{
 
 	__device__ float integrate(int v_i, int vD_i, float* Dit, float DELTA){
@@ -252,6 +264,7 @@ extern "C"{
 //////////////////////////////////////////
 //		VECTORWISE CARRIERS/DOS			//
 //////////////////////////////////////////
+
 extern "C"{
 
 	__global__ void mlDOS_vec(float* eF, float* RO){ 

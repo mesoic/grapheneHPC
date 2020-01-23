@@ -19,16 +19,22 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Hysteresis Modeling Kernel
+// Preisach Hysteresis Modeling CUDA Kernel (requires preprocessing prior 
+// to compilation): [DIM, NGRID, XLEN]
 //
 // Compile with: nvcc -c -arch=sm_20 <filename>.cu	
 // 
 // Compilation will create CV_kernel.cubin which provides the functions below. 
 // The .cubin can then be imported into Python(PyCUDA) or C/C++ code.	
 // 
-// This kernel provides GPU methods to compute hysteresis curves based on the 
-// Preisach model. The code also contains kernels for and for several weighted 
-// relay kernels, and utility kernels for comupting individual relays
+//////////////////////////////////////////////////////////////////////////
+// Class to calculate preisach kernel with weighted density functions. This kernel 
+// was evaluaed as a fit function to ndfit for modelling of graphene field effect 
+// devices.
+//
+// Hysteresis modeling in graphene field effect transistors
+//
+// Journal of Applied Physics 117, 074501 (2015); https://doi.org/10.1063/1.4913209
 //
 
 #include <stdio.h>
@@ -39,6 +45,7 @@
 ///////////////////////
 //   CONSTANTS       //
 ///////////////////////
+
 __device__ __constant__ float PI = 3.141592654f; 
 __device__ __constant__ float HB = 6.58211e-16f;
 __device__ __constant__ float KB = 8.617332e-5f;
@@ -51,9 +58,10 @@ __device__ __constant__ float GS = 4.0f;
 //////////////////////////////////
 //		ATOMIC OPERATIONS	 	//
 //////////////////////////////////
+
 extern "C" {
 
-	__device__ void addToR(float *r, float* rx, float* a, float n) {
+	__device__ void addRelay(float *r, float* rx, float* a, float n) {
 
 		for (int i=0; i<%(XLEN)s;i++){
 
@@ -65,6 +73,7 @@ extern "C" {
 //////////////////////////////////
 //	  RELAY DENSITY FUNCTIONS	//
 //////////////////////////////////
+
 extern "C" {
 
 	__global__ void RhoConst(float* p){
@@ -108,6 +117,7 @@ extern "C" {
 //////////////////////////
 //	  PREISACH KERNEL   //
 //////////////////////////
+
 extern "C" {
 
 	__global__ void PreisachASC(float* a, float* e, float*d, float* p, float* r, float n){
@@ -120,7 +130,7 @@ extern "C" {
             rx[i] += (a[i] < e[pmx]+d[pmx]) ? float(-p[pmx]): float(p[pmx]);
         }
 		
-        addToR(r,rx, a, n);
+        addRelay(r,rx, a, n);
 	}   
 }
 
@@ -136,13 +146,14 @@ extern "C" {
 
             rx[i] += (a[i] < e[pmx]-d[pmx]) ? float(-p[pmx]): float(p[pmx]);}
 		
-        addToR(r,rx, a, n);
+        addRelay(r,rx, a, n);
 	}
 }
 
 ////////////////////////
 //	  RELAY KERNEL	  //
 ////////////////////////
+
 extern "C" {
 
 	__global__ void RelayASC(float* a, float* r, float e, float d, float n){
@@ -164,6 +175,7 @@ extern "C" {
 ////////////////////////////////
 //	  NORMALIZE HYSTERESIS	  //
 ////////////////////////////////
+
 extern "C" {
 
 	__global__ void Normalize(float* a, float* r, int N){

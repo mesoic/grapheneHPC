@@ -38,7 +38,7 @@ if __name__ == "__main__":
 	#	The Preisach Kernel	 #									
 	##########################
 	kernel_code_template = """
-		__global__ void hysteresis(float* a, float* r, float *e, float* d)
+		__global__ void preisach(float* a, float* r, float *e, float* d)
 		{
 			int idx = %(DIM)s*blockIdx.x + blockIdx.y;
 			int tid = threadIdx.x;
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 		'd'	  : '%d'
 	}
 	mod = SourceModule(kernel_code)
-	func = mod.get_function("hysteresis")
+	func = mod.get_function("preisach")
 
 	tic = datetime.now()
 	############################################

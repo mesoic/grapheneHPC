@@ -2,6 +2,7 @@
 import math as m
 from numba import jit
 
+# Example functions for just in time compilation
 @jit('f8(f8)', nopython=True)
 def erf(x):
     # save the sign of x

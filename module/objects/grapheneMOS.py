@@ -1,4 +1,10 @@
 #!/usr/bin/python
+#
+# Characterization and physical modeling of MOS capacitors in epitaxial 
+# graphene monolayers and bilayers on 6H-SiC
+#
+# AIP Advances 6, 085010 (2016); https://doi.org/10.1063/1.4961361
+#
 import pycuda.autoinit
 import pycuda.driver as cuda
 
@@ -22,8 +28,8 @@ import matplotlib.pyplot as plt
 # 7) return result 		(return)
 #
 
-# An object to wrap graphen CV CUDA kernel
-class CV_KERNEL:
+# GrapheneMOS kernel class (archived) 
+class grapheneMOS:
 
 	def __init__(self, NGRID = 16):
 
